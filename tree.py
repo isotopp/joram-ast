@@ -1,11 +1,13 @@
 #! /usr/bin/env python
+from typing import Any, Optional
+
 
 # Eine Node hat einen Wert, value
 # und zwei "Zweige" left und right.
 # Wenn die nicht angegeben sind, sind die None.
 
 class Node:
-    def __init__(self, value, left=None, right=None):
+    def __init__(self, value: Any, left: Optional["Node"] = None, right: Optional["Node"] = None):
         self.value = value
         self.left = left
         self.right = right
