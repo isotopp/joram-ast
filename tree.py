@@ -26,14 +26,17 @@ class Node:
 
 
 class Lexer:
-    def __init__(self, input: str):
-        self.input = input
-        self.words = [word.strip() for word in input.split()]
+    def __init__(self, the_input: str):
+        self.input = the_input
+        self.words = [word.strip() for word in the_input.split()]
 
     def tokenize(self):
-        pass
+        for word in self.words:
+            yield word
 
 
 if __name__ == "__main__":
     l = Lexer("5 + 2 * 4 + 6")
     print(f"{l.words}")
+    for word in l.tokenize():
+        print(f"{word=}")
