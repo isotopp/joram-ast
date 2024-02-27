@@ -27,3 +27,14 @@ if __name__ == "__main__":
     # Wir machen uns eine einsame Node n
     n = Node(1)
     print(f"{n=}")
+
+    # Wir machen uns Nodes l und r und weisen sie n.left und n.right nachträglich zu
+    l = Node(2)
+    r = Node(3)
+    n.left = l
+    n.right = r
+    print(f"{n=}")
+
+    # Dasselbe in einem Arbeitsgang
+    all = Node(1, Node(2), Node(3))
+    print(f"{all=}")
