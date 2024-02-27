@@ -24,6 +24,31 @@ class Node:
         # Was passiert, wenn wir stattdessen {self.left} und {self.right} einsetzen würden? → Rekursion (aber versteckt)
         return f"Node(value={self.value}, left={left}, right={right})"
 
+    def preorder_walk(self):
+        value = self.value
+        print(f"{value}", end=' ')
+        if self.left is not None:
+            self.left.preorder_walk()
+        if self.right is not None:
+            self.right.preorder_walk()
+
+    def inorder_walk(self):
+        value = self.value
+
+        if self.left is not None:
+            self.left.inorder_walk()
+        print(f"{value}", end=' ')
+        if self.right is not None:
+            self.right.inorder_walk()
+
+    def postorder_walk(self):
+        value = self.value
+        if self.left is not None:
+            self.left.postorder_walk()
+        if self.right is not None:
+            self.right.postorder_walk()
+        print(f"{value}", end=' ')
+
 
 class Lexer:
     def __init__(self, the_input: str):
@@ -35,8 +60,26 @@ class Lexer:
             yield word
 
 
+# 5 + 2 * 4
+#
+#    +
+#   / \
+#  5   *
+#     / \
+#    2   4
+
 if __name__ == "__main__":
-    l = Lexer("5 + 2 * 4 + 6")
-    print(f"{l.words}")
-    for word in l.tokenize():
-        print(f"{word=}")
+    n = Node('*')
+    n.left = Node('2')
+    n.right = Node('4')
+
+    m = Node('+')
+    m.left = Node('5')
+    m.right = n
+
+    m.preorder_walk()
+    print()
+    m.inorder_walk()
+    print()
+    m.postorder_walk()
+    print()
