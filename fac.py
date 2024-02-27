@@ -51,7 +51,15 @@ def fac_tr(n, akku=1, depth=0):
         return fac_tr(n - 1, n * akku, depth + 1)
 
 
+def fac_i(n):
+    akku = 1
+    for i in range(1, n + 1):
+        akku *= i
+    return akku
+
+
 if __name__ == "__main__":
     print(fac(5))
     print(fac_depth(5))
     print(fac_tr(5))
+    print(fac_i(5))
