@@ -36,6 +36,22 @@ def fac_depth(n: int, depth: int = 0) -> int:
     return r
 
 
+def fac_tr(n, akku=1, depth=0):
+    sp = '  ' * depth
+    print(f"{sp}Call to fac_tr({n=}, {akku=}, {depth=})")
+    if n < 1:
+        raise ValueError(f"n={n} must be greater than or equal")
+
+    if n == 1:
+        print(f"{sp}return 1")
+        return akku
+    else:
+        r = fac_tr(n - 1, n * akku, depth + 1)
+        print(f"{sp}return {r} = fac_tr({n=}, {akku=}, {depth=}")
+        return r
+
+
 if __name__ == "__main__":
     print(fac(5))
     print(fac_depth(5))
+    print(fac_tr(5))
