@@ -21,22 +21,19 @@ class Node:
         if self.right is not None:
             right = self.right.value
 
-        # Was passiert, wenn wir stattdessen {self.left} und {self.right} einsetzen würden? -> Rekursion (aber versteckt)
+        # Was passiert, wenn wir stattdessen {self.left} und {self.right} einsetzen würden? → Rekursion (aber versteckt)
         return f"Node(value={self.value}, left={left}, right={right})"
 
 
+class Lexer:
+    def __init__(self, input: str):
+        self.input = input
+        self.words = [word.strip() for word in input.split()]
+
+    def tokenize(self):
+        pass
+
+
 if __name__ == "__main__":
-    # Wir machen uns eine einsame Node n
-    n = Node(1)
-    print(f"{n=}")
-
-    # Wir machen uns Nodes l und r und weisen sie n.left und n.right nachträglich zu
-    l = Node(2)
-    r = Node(3)
-    n.left = l
-    n.right = r
-    print(f"{n=}")
-
-    # Dasselbe in einem Arbeitsgang
-    all = Node(1, Node(2), Node(3))
-    print(f"{all=}")
+    l = Lexer("5 + 2 * 4 + 6")
+    print(f"{l.words}")
