@@ -42,34 +42,32 @@ class Node:
             self.right.inorder_walk()
 
     def postorder_walk(self):
-        value = self.value
         if self.left is not None:
             self.left.postorder_walk()
         if self.right is not None:
             self.right.postorder_walk()
-        print(f"{value}", end=' ')
+        print(f"{self.value}", end=' ')
 
     def postorder_apply(self, fn):
-        print(f"before {self}")
-
         if self.left is not None:
             self.left.postorder_apply(fn)
         if self.right is not None:
             self.right.postorder_apply(fn)
         fn(self)
 
-        print(f"after  {self}")
-
 
 def ausrechnen(node):
     print(f"  before {node=}")
     if node.value == '+':
-        node.value = int(node.left.value) + int(node.right.value)
-        return
+        node.value = node.left.value + node.right.value
+        node.left = None
+        node.right = None
 
     if node.value == '*':
-        node.value = int(node.left.value) * int(node.right.value)
-        return
+        node.value = node.left.value * node.right.value
+        node.left = None
+        node.right = None
+
     try:
         node.value = int(node.value)
     except ValueError:
