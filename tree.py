@@ -49,6 +49,33 @@ class Node:
             self.right.postorder_walk()
         print(f"{value}", end=' ')
 
+    def postorder_apply(self, fn):
+        print(f"before {self}")
+
+        if self.left is not None:
+            self.left.postorder_apply(fn)
+        if self.right is not None:
+            self.right.postorder_apply(fn)
+        fn(self)
+
+        print(f"after  {self}")
+
+
+def ausrechnen(node):
+    print(f"  before {node=}")
+    if node.value == '+':
+        node.value = int(node.left.value) + int(node.right.value)
+        return
+
+    if node.value == '*':
+        node.value = int(node.left.value) * int(node.right.value)
+        return
+    try:
+        node.value = int(node.value)
+    except ValueError:
+        pass
+    print(f"  after  {node=}")
+
 
 class Lexer:
     def __init__(self, the_input: str):
@@ -77,9 +104,5 @@ if __name__ == "__main__":
     m.left = Node('5')
     m.right = n
 
-    m.preorder_walk()
-    print()
-    m.inorder_walk()
-    print()
-    m.postorder_walk()
-    print()
+    m.postorder_apply(ausrechnen)
+    print(m.value)
