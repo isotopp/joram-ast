@@ -1,7 +1,7 @@
 # fib.py
 
 Wir schreiben eine rekursive Funktion fib() und verkomplizieren das dann,
-und lernen dabei, daß das dasselbe sein kann, wie eine Schleifen.
+und lernen dabei, daß das dasselbe sein kann, wie eine Schleife.
 
 Wir brauchen dazu Pycharm und die Debugger-Funktion mit Breakpoints, um das
 verstehen zu können.
