@@ -172,14 +172,56 @@ class Parser:
         print(f'Error {msg} at {t.line}:{t.column}', file=sys.stderr)
         sys.exit(1)
 
-# 51 + 2 * 4
-#
-#    +
-#   / \
-#  51  *
-#     / \
-#    2   4
-#
+
+    #
+    # term := factor ( '+' factor )*
+    #
+    # factor := primary ( '*' primary )*
+    #
+    # primary := NUMBER
+    #
+
+    def term(self) -> Node:
+        TERMOPS = [Token(type='OPERATOR', value='+'), ]
+        if DEBUG: print("Enter Term")
+        left = self.factor()
+
+        while self.peek('+') in TERMOPS:
+            t = self.consume()
+            right = self.factor()
+            left = Node(value=t.value, left=left, right=right)
+
+        if DEBUG: print(f"Exit  Term: {left}")
+        return left
+
+    def factor(self) -> Node:
+        FACTOROPS = [Token(type='OPERATOR', value='*')]
+        if DEBUG: print("Enter Factor")
+        left = self.primary()
+
+        while self.peek('*') in FACTOROPS:
+            t = self.consume()
+            right = self.primary()
+            left = Node(value=t.value, left=left, right=right)
+
+        if DEBUG: print(f"Exit  Factor: {left}")
+        return left
+
+    def primary(self) -> Node:
+        if DEBUG: print("Enter Primary")
+        t = self.consume()
+        if t.type == 'NUMBER':
+            n = Node(value=t.value)
+            if DEBUG: print(f"Exit  Primary: {n}")
+            return n
+        else:
+            self.error(f'Unexpected token {t.type}')
+
+    def parse(self) -> Node:
+        self.tree = self.term()
+        return self.tree
+
+
 
 if __name__ == "__main__":
     expr = "51 + 2 * 4"
