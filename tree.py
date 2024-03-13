@@ -1,8 +1,10 @@
 #! /usr/bin/env python
 import re
-from dataclasses import dataclass
+import sys
+from dataclasses import dataclass, field
 from typing import Any, Optional, Generator
 
+DEBUG = True
 
 # Eine Node hat einen Wert, value
 # und zwei "Zweige" left und right.
@@ -58,8 +60,14 @@ class Node:
         fn(self)
 
 
-def ausrechnen(node):
-    print(f"  before {node=}")
+def ausrechnen(node, indent=0):
+    dent = "  " * indent
+    if DEBUG: print(f"{dent}before {node=}")
+    if node.left is not None:
+        ausrechnen(node.left, indent+1)
+    if node.right is not None:
+        ausrechnen(node.right, indent+1)
+
     if node.value == '+':
         if node.left is None or node.right is None:
             raise RuntimeError(f"In {node}, found a none in {node.left=}, {node.right=}")
@@ -80,7 +88,7 @@ def ausrechnen(node):
         node.value = int(node.value)
     except ValueError:
         pass
-    print(f"  after  {node=}")
+    if DEBUG: print(f"{dent}after  {node=}")
 
 
 @dataclass(frozen=True, slots=True)
