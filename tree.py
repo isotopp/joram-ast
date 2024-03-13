@@ -6,11 +6,21 @@ from typing import Any, Optional, Generator
 
 DEBUG = True
 
-# Eine Node hat einen Wert, value
-# und zwei "Zweige" left und right.
-# Wenn die nicht angegeben sind, sind die None.
 
 class Node:
+    """ Eine Node hat einen Wert ``value`` und zwei optionale Nachfolger ``left`` und ``right``.
+
+    Wir stellen drei Methoden bereit, die den Node-Baum durchlaufen:
+
+    - ``preorder_walk()``: Durchläuft den Baum in Preorder-Reihenfolge.
+    - ``inorder_walk()``: Durchläuft den Baum in Inorder-Reihenfolge.
+    - ``postorder_walk()``: Durchläuft den Baum in Postorder-Reihenfolge.
+
+    Außerdem gibt es eine Methode
+
+    - ``postorder_apply(fn)``: Wendet die Methode `fn` auf den Baum in Postorder-Reihenfolge an.
+
+    """
     def __init__(self, value: Any, left: Optional["Node"] = None, right: Optional["Node"] = None):
         self.value = value
         self.left = left
@@ -53,6 +63,9 @@ class Node:
         print(f"{self.value}", end=' ')
 
     def postorder_apply(self, fn):
+        """ Wendet die Funktion `fn` in Postorder-Reihenfolge auf alle
+            Nodes an, ausgehend von der aktuellen Node.
+        """
         if self.left is not None:
             self.left.postorder_apply(fn)
         if self.right is not None:
@@ -60,13 +73,8 @@ class Node:
         fn(self)
 
 
-def ausrechnen(node, indent=0):
-    dent = "  " * indent
-    if DEBUG: print(f"{dent}before {node=}")
-    if node.left is not None:
-        ausrechnen(node.left, indent+1)
-    if node.right is not None:
-        ausrechnen(node.right, indent+1)
+def ausrechnen(node):
+    if DEBUG: print(f"  before {node=}")
 
     if node.value == '+':
         if node.left is None or node.right is None:
@@ -88,7 +96,7 @@ def ausrechnen(node, indent=0):
         node.value = int(node.value)
     except ValueError:
         pass
-    if DEBUG: print(f"{dent}after  {node=}")
+    if DEBUG: print(f"  after  {node=}")
 
 
 @dataclass(frozen=True, slots=True)
@@ -234,5 +242,5 @@ if __name__ == "__main__":
     tree.postorder_walk()
     print()
 
-    ausrechnen(tree)
+    tree.postorder_apply(ausrechnen)
     print(f"{tree=}")
