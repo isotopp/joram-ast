@@ -95,6 +95,8 @@ def ausrechnen(node, indent=0):
 class Token:
     type: Any
     value: Any
+    line: int = field(default=None, compare=False)
+    column: int = field(default=None, compare=False)
 
 
 class Lexer:
@@ -104,37 +106,39 @@ class Lexer:
 
         self.offset = 0
         self.line = 0
-        self.char = 0
+        self.column = 0
 
     def tokenize(self) -> Generator[Token, None, None]:
         NUMBER = re.compile(r"(-?\d+)", re.ASCII)
         OPERATOR = ['+', '*']
 
-        while self.offset < self.len - 1:
+        while self.offset < self.len:
             c = self.input[self.offset]
 
             if c == '\n':
                 self.line += 1
                 self.offset += 1
-                self.char = 0
-                yield Token(type='EOL', value='\n')
+                self.column = 0
+                yield Token(type='EOL', value='\n', line=self.line, column=self.column)
             elif c.isspace():
                 self.offset += 1
-                self.char += 1
+                self.column += 1
             elif m := re.match(NUMBER, self.input[self.offset:]):
                 self.offset += len(m[0])
-                self.char += len(m[0])
-                yield Token(type='NUMBER', value=int(m[0]))
+                self.column += len(m[0])
+                yield Token(type='NUMBER', value=int(m[0]), line=self.line, column=self.column)
             elif c in OPERATOR:
                 self.offset += 1
-                self.char += 1
-                yield Token(type='OPERATOR', value=c)
+                self.column += 1
+                yield Token(type='OPERATOR', value=c, line=self.line, column=self.column)
             else:
                 self.offset += 1
-                self.char += 1
-                yield Token(type='char', value=c)
+                self.column += 1
+                yield Token(type='char', value=c, line=self.line, column=self.column)
 
-        yield Token(type='EOF', value='\n')
+        self.offset += 1
+        self.column += 1
+        yield Token(type='EOF', value='\n', line=self.line, column=self.column)
 
 
 class Parser:
