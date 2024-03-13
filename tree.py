@@ -224,7 +224,15 @@ class Parser:
 
 
 if __name__ == "__main__":
-    expr = "51 + 2 * 4"
+    expr = "2 * 3 + 4 * 5"
     l = Lexer(expr)
-    for i in l.tokenize():
-        print(f"{i} {l.offset} {l.line=} {l.char=}")
+    print(f"{l.input=}")
+
+    parser = Parser(lexer=l)
+    tree = parser.parse()
+
+    tree.postorder_walk()
+    print()
+
+    ausrechnen(tree)
+    print(f"{tree=}")
