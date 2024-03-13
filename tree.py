@@ -101,13 +101,24 @@ def ausrechnen(node):
 
 @dataclass(frozen=True, slots=True)
 class Token:
-    type: Any
-    value: Any
+    """ Ein ``Token`` hat immer einen ``type`` und einen ``value``.
+
+     Der ``type`` kann `NUMBER` sein, der ``value`` ist dann ein ``int``.
+     Der ``type`` kann ``OPERATOR`` sein, der ``value`` ist dann ein Einzeichenstring mit dem betreffenden Operator.
+
+     Die Felder ``line`` und ``column`` sind optional und werden gebraucht, um Fehlermeldungen sinnvoll ausgeben zu können.
+     """
+    type: Any  # Enum: NUMBER, OPERATOR
+    value: Any  # type == NUMBER -> value == int. type == OPERATOR -> value = str mit len(value)==1
     line: int = field(default=None, compare=False)
     column: int = field(default=None, compare=False)
 
 
 class Lexer:
+    """ Verbesserter Lexer.
+
+     Der Lexer hat eine Generator-Methode ``tokenize()``, die jeweils das nächste Token zurück gibt.
+     """
     def __init__(self, the_input: str):
         self.input = the_input
         self.len = len(self.input)
@@ -150,6 +161,17 @@ class Lexer:
 
 
 class Parser:
+    """ Ein recursive descent Parser für die folgende Grammatik:
+    ::
+
+      term := factor ( '+' factor )*
+      factor := primary ( '*' primary )*
+      primary := NUMBER
+
+    Die einzelnen Regeln werden in Methoden des Namens implementiert: factor in ``factor()`` und so weiter.
+    Die Produktionsregeln geben jeweils den Typ ``Node`` zurück, die Spitze des Parsebaumes bisher.
+
+    """
     def __init__(self, lexer: Lexer):
         self.tokens = [t for t in lexer.tokenize()]
         self.pos = 0
@@ -180,17 +202,12 @@ class Parser:
         print(f'Error {msg} at {t.line}:{t.column}', file=sys.stderr)
         sys.exit(1)
 
-
-    #
-    # term := factor ( '+' factor )*
-    #
-    # factor := primary ( '*' primary )*
-    #
-    # primary := NUMBER
-    #
-
     def term(self) -> Node:
-        TERMOPS = [Token(type='OPERATOR', value='+'), ]
+        """term := factor ( '+' factor )*
+
+        Ein Term ist ein Factor, optional gefolgt einer Gruppe "Operator +" und weiterer Faktor.
+        """
+        TERMOPS = [Token(type='OPERATOR', value='+'), ]  # Kann um '-' erweitert werden.
         if DEBUG: print("Enter Term")
         left = self.factor()
 
@@ -203,7 +220,10 @@ class Parser:
         return left
 
     def factor(self) -> Node:
-        FACTOROPS = [Token(type='OPERATOR', value='*')]
+        """factor := primary ( '*' primary )*
+
+         Ein Faktor ist ein Primary, optional gefolgt einer Gruppe "Operator *" und einem weiteren Primary."""
+        FACTOROPS = [Token(type='OPERATOR', value='*')]  # Kann um '/' erweitert werden.
         if DEBUG: print("Enter Factor")
         left = self.primary()
 
@@ -216,12 +236,21 @@ class Parser:
         return left
 
     def primary(self) -> Node:
+        """primary := NUMBER
+
+        Ein Primary ist eine NUMBER."""
         if DEBUG: print("Enter Primary")
         t = self.consume()
         if t.type == 'NUMBER':
             n = Node(value=t.value)
             if DEBUG: print(f"Exit  Primary: {n}")
             return n
+        # elif self.peek() == Token(type='OPERATOR', value='('):
+        #   _ = self.consume()
+        #   n = self.term()
+        #   closing = self.consume()
+        #   if closing != Token(type='OPERATOR', value=')'):
+        #     self.error("Expected closing parenthesis.")
         else:
             self.error(f'Unexpected token {t.type}')
 
