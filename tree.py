@@ -142,8 +142,35 @@ class Lexer:
 
 
 class Parser:
-    def __init__(self):
-        pass
+    def __init__(self, lexer: Lexer):
+        self.tokens = [t for t in lexer.tokenize()]
+        self.pos = 0
+        self.len = len(self.tokens)
+
+    def peek(self, msg) -> Optional[Token]:
+        if self.pos >= self.len:
+            if DEBUG: print(f"Peek {msg}: None {self.pos}, {self.len}")
+            return None
+
+        t = self.tokens[self.pos]
+        if DEBUG: print(f"Peek {msg}: {t}, {self.pos}, {self.len}")
+        return t
+
+    def consume(self) -> Optional[Token]:
+        if self.pos >= self.len:
+            if DEBUG: print(f"Consume: None {self.pos}, {self.len}")
+            return None
+
+        t = self.tokens[self.pos]
+        if DEBUG: print(f"Consume: {t} {self.pos}, {self.len}")
+        self.pos += 1
+        return t
+
+    def error(self, msg: str) -> None:
+        t = self.tokens[self.pos]
+
+        print(f'Error {msg} at {t.line}:{t.column}', file=sys.stderr)
+        sys.exit(1)
 
 # 51 + 2 * 4
 #
