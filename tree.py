@@ -1,5 +1,7 @@
 #! /usr/bin/env python
-from typing import Any, Optional
+import re
+from dataclasses import dataclass
+from typing import Any, Optional, Generator
 
 
 # Eine Node hat einen Wert, value
@@ -59,11 +61,17 @@ class Node:
 def ausrechnen(node):
     print(f"  before {node=}")
     if node.value == '+':
+        if node.left is None or node.right is None:
+            raise RuntimeError(f"In {node}, found a none in {node.left=}, {node.right=}")
+
         node.value = node.left.value + node.right.value
         node.left = None
         node.right = None
 
     if node.value == '*':
+        if node.left is None or node.right is None:
+            raise RuntimeError(f"In {node}, found a none in {node.left=}, {node.right=}")
+
         node.value = node.left.value * node.right.value
         node.left = None
         node.right = None
@@ -75,32 +83,67 @@ def ausrechnen(node):
     print(f"  after  {node=}")
 
 
+@dataclass(frozen=True, slots=True)
+class Token:
+    type: Any
+    value: Any
+
+
 class Lexer:
     def __init__(self, the_input: str):
         self.input = the_input
-        self.words = [word.strip() for word in the_input.split()]
+        self.len = len(self.input)
 
-    def tokenize(self):
-        for word in self.words:
-            yield word
+        self.offset = 0
+        self.line = 0
+        self.char = 0
+
+    def tokenize(self) -> Generator[Token, None, None]:
+        NUMBER = re.compile(r"(-?\d+)", re.ASCII)
+        OPERATOR = ['+', '*']
+
+        while self.offset < self.len - 1:
+            c = self.input[self.offset]
+
+            if c == '\n':
+                self.line += 1
+                self.offset += 1
+                self.char = 0
+                yield Token(type='EOL', value='\n')
+            elif c.isspace():
+                self.offset += 1
+                self.char += 1
+            elif m := re.match(NUMBER, self.input[self.offset:]):
+                self.offset += len(m[0])
+                self.char += len(m[0])
+                yield Token(type='NUMBER', value=int(m[0]))
+            elif c in OPERATOR:
+                self.offset += 1
+                self.char += 1
+                yield Token(type='OPERATOR', value=c)
+            else:
+                self.offset += 1
+                self.char += 1
+                yield Token(type='char', value=c)
+
+        yield Token(type='EOF', value='\n')
 
 
-# 5 + 2 * 4
+class Parser:
+    def __init__(self):
+        pass
+
+# 51 + 2 * 4
 #
 #    +
 #   / \
-#  5   *
+#  51  *
 #     / \
 #    2   4
+#
 
 if __name__ == "__main__":
-    n = Node('*')
-    n.left = Node('2')
-    n.right = Node('4')
-
-    m = Node('+')
-    m.left = Node('5')
-    m.right = n
-
-    m.postorder_apply(ausrechnen)
-    print(m.value)
+    expr = "51 + 2 * 4"
+    l = Lexer(expr)
+    for i in l.tokenize():
+        print(f"{i} {l.offset} {l.line=} {l.char=}")
